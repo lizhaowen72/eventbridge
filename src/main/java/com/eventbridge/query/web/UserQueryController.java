@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -26,6 +27,7 @@ public class UserQueryController {
 
     @GetMapping("/{userId}")
     public UserView getUser(@PathVariable String userId) {
-        return userViewRepository.findById(userId);
+        Optional<UserView> userOpt = userViewRepository.findById(userId);
+        return userOpt.orElse(null);
     }
 }
