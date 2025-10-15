@@ -1,52 +1,64 @@
 package com.eventbridge.command.infrastructure.events;
 
-import com.eventbridge.command.domain.events.DomainEvent;
-import com.eventbridge.command.domain.events.UserCreatedEvent;
-import com.eventbridge.command.domain.events.UserDeactivatedEvent;
-import com.eventbridge.command.domain.events.UserEmailUpdatedEvent;
-import com.eventbridge.config.RabbitMQConfig;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import com.eventbridge.command.domain.events.DomainEvent;
+import com.eventbridge.config.RabbitMQConfig;
+
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class DomainEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ObjectMapper objectMapper;
 
     public DomainEventPublisher(RabbitTemplate rabbitTemplate,
-                                ApplicationEventPublisher applicationEventPublisher) {
+                                ApplicationEventPublisher applicationEventPublisher,
+                                ObjectMapper objectMapper) {
         this.rabbitTemplate = rabbitTemplate;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.objectMapper = objectMapper;
     }
 
     public void publish(DomainEvent event) {
-        // 发布到本地应用事件（用于事务同步）
+        // 发布到本地应用事件
         applicationEventPublisher.publishEvent(event);
 
-        // 发布到消息队列（用于跨服务通信）
+        // 发布到消息队列
         publishToMessageQueue(event);
     }
 
     private void publishToMessageQueue(DomainEvent event) {
         String routingKey = getRoutingKey(event);
 
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.DOMAIN_EVENTS_EXCHANGE,
-                routingKey,
-                event
-        );
+        // 创建一个不包含类型信息的消息
+        String messageBody;
+        try {
+            // 手动序列化，不包含类型信息
+            messageBody = objectMapper.writeValueAsString(event);
+        } catch (Exception e) {
+            System.err.println("❌ 序列化事件失败: " + e.getMessage());
+            return;
+        }
 
-        System.out.println("Published event: " + event.getEventType() + " for aggregate: " + event.getAggregateId());
+        Message message = MessageBuilder
+                .withBody(messageBody.getBytes(StandardCharsets.UTF_8))
+                .setContentType(MessageProperties.CONTENT_TYPE_JSON)
+                .build();
+
+        rabbitTemplate.send(RabbitMQConfig.DOMAIN_EVENTS_EXCHANGE, routingKey, message);
+
+        System.out.println("📤 [COMMAND] 发布到 RabbitMQ: " + event.getEventType() + " - " + event.getAggregateId());
     }
 
     private String getRoutingKey(DomainEvent event) {
-        if (event instanceof UserCreatedEvent ||
-                event instanceof UserEmailUpdatedEvent ||
-                event instanceof UserDeactivatedEvent) {
-            return "user." + event.getEventType().toLowerCase();
-        }
-        return event.getEventType().toLowerCase();
+        return "user." + event.getEventType().toLowerCase();
     }
 }
