@@ -1,6 +1,6 @@
 package com.eventbridge.query.application;
 
-import com.eventbridge.common.enums.UserStatus;
+import com.eventbridge.command.domain.model.UserStatus;
 import com.eventbridge.query.infrastructure.model.UserView;
 import com.eventbridge.query.infrastructure.persistence.UserViewRepository;
 import org.springframework.stereotype.Service;

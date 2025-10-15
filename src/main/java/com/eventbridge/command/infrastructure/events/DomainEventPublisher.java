@@ -32,7 +32,7 @@ public class DomainEventPublisher {
         applicationEventPublisher.publishEvent(event);
 
         // 发布到消息队列
-        publishToMessageQueue(event);
+        //publishToMessageQueue(event);
     }
 
     private void publishToMessageQueue(DomainEvent event) {

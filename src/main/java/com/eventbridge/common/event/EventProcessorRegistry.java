@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class EventProcessorRegistry {
 
     private final Map<String, Consumer<DomainEvent>> processors = new ConcurrentHashMap<>();
+    private final Set<String> processedEventIds = ConcurrentHashMap.newKeySet();
 
     /**
      * 应用启动完成后初始化
@@ -38,38 +39,6 @@ public class EventProcessorRegistry {
 
         processors.put(eventType, processor);
         System.out.println("📝 EventProcessorRegistry - 注册处理器: " + eventType);
-    }
-
-    /**
-     * 处理事件
-     */
-    public void process(String eventType, DomainEvent event) {
-        if (eventType == null || eventType.trim().isEmpty()) {
-            System.err.println("❌ EventProcessorRegistry - 事件类型为空，无法处理");
-            return;
-        }
-        if (event == null) {
-            System.err.println("❌ EventProcessorRegistry - 事件对象为空，无法处理");
-            return;
-        }
-
-        Consumer<DomainEvent> processor = processors.get(eventType);
-        if (processor != null) {
-            try {
-                System.out.println("🚀 EventProcessorRegistry - 执行处理器: " + eventType + " for " + event.getAggregateId());
-                processor.accept(event);
-                System.out.println("✅ EventProcessorRegistry - 处理器执行成功: " + eventType);
-            } catch (Exception e) {
-                System.err.println("❌ EventProcessorRegistry - 处理器执行失败 " + eventType + ": " + e.getMessage());
-                e.printStackTrace();
-                // 在实际生产环境中，这里应该将失败的事件发送到死信队列
-                handleProcessingFailure(eventType, event, e);
-            }
-        } else {
-            System.out.println("⚠️ EventProcessorRegistry - 未找到事件处理器: " + eventType);
-            // 可以选择记录未处理的事件，或者抛出异常
-            handleUnprocessedEvent(eventType, event);
-        }
     }
 
     /**
@@ -233,5 +202,44 @@ public class EventProcessorRegistry {
                 processors.size(),
                 getRegisteredEventTypes().stream().collect(Collectors.joining(", "))
         );
+    }
+
+    public void process(String eventType, DomainEvent event) {
+        if (eventType == null || eventType.trim().isEmpty()) {
+            System.err.println("❌ EventProcessorRegistry - 事件类型为空，无法处理");
+            return;
+        }
+        if (event == null) {
+            System.err.println("❌ EventProcessorRegistry - 事件对象为空，无法处理");
+            return;
+        }
+
+        // 重复事件检测
+        String eventKey = event.getEventId() + ":" + eventType;
+        if (processedEventIds.contains(eventKey)) {
+            System.out.println("⏭️ EventProcessorRegistry - 跳过已处理的事件: " + eventKey);
+            return;
+        }
+
+        Consumer<DomainEvent> processor = processors.get(eventType);
+        if (processor != null) {
+            try {
+                System.out.println("🚀 EventProcessorRegistry - 执行处理器: " + eventType + " for " + event.getAggregateId());
+                processor.accept(event);
+                // 记录已处理的事件
+                processedEventIds.add(eventKey);
+                // 限制内存使用，只保留最近1000个事件ID
+                if (processedEventIds.size() > 1000) {
+                    processedEventIds.clear();
+                }
+
+                System.out.println("✅ EventProcessorRegistry - 处理器执行成功: " + eventType);
+            } catch (Exception e) {
+                System.err.println("❌ EventProcessorRegistry - 处理器执行失败 " + eventType + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("⚠️ EventProcessorRegistry - 未找到事件处理器: " + eventType);
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.eventbridge.command;
 import com.eventbridge.command.application.UserCommandService;
 import com.eventbridge.command.application.commands.CreateUserCommand;
 import com.eventbridge.command.application.commands.UpdateUserEmailCommand;
+import com.eventbridge.command.domain.model.UserStatus;
 import com.eventbridge.command.infrastructure.persistence.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,6 @@ class UserCommandServiceTest {
         // 验证用户状态
         var userOpt = userRepository.findById(userId);
         assertTrue(userOpt.isPresent());
-        assertEquals(com.eventbridge.common.enums.UserStatus.INACTIVE, userOpt.get().getStatus());
+        assertEquals(UserStatus.INACTIVE, userOpt.get().getStatus());
     }
 }

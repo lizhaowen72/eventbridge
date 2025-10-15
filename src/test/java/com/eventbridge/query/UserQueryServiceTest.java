@@ -2,6 +2,7 @@ package com.eventbridge.query;
 
 import com.eventbridge.command.application.UserCommandService;
 import com.eventbridge.command.application.commands.CreateUserCommand;
+import com.eventbridge.command.domain.model.UserStatus;
 import com.eventbridge.query.application.UserQueryService;
 import com.eventbridge.query.infrastructure.model.UserView;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ class UserQueryServiceTest {
 
         // 所有返回的用户都应该是活跃状态
         for (UserView user : activeUsers) {
-            assertEquals(com.eventbridge.common.enums.UserStatus.ACTIVE, user.getStatus());
+            assertEquals(UserStatus.ACTIVE, user.getStatus());
         }
     }
 }

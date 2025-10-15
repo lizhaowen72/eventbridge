@@ -13,7 +13,6 @@ import com.eventbridge.command.domain.events.DomainEvent;
 import com.eventbridge.command.domain.events.UserCreatedEvent;
 import com.eventbridge.command.domain.events.UserEmailUpdatedEvent;
 import com.eventbridge.command.domain.events.UserDeactivatedEvent;
-import com.eventbridge.common.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 

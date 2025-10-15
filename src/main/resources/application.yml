@@ -32,6 +32,14 @@ spring:
       fail-on-unknown-properties: false
     serialization:
       write-dates-as-timestamps: false
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 25
+        thread-name-prefix: Async-
+      thread-name-prefix: Async-
 
 server:
   port: 8080
@@ -43,3 +51,5 @@ logging:
     org.springframework.transaction: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.eventbridge.query.application.eventhandlers.UserEventsHandler: DEBUG
+    com.eventbridge.query.application.eventhandlers.UserEventRegistrar: DEBUG

@@ -1,6 +1,6 @@
 package com.eventbridge.query.infrastructure.model;
 
-import com.eventbridge.common.enums.UserStatus;
+import com.eventbridge.command.domain.model.UserStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
