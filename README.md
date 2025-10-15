@@ -1,23 +1,24 @@
-# EventBridge - CQRS & Event Sourcing 用户管理系统
+```markdown
+# EventBridge - CQRS & Event Sourcing User Management System
 
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen)
 ![Java](https://img.shields.io/badge/Java-17-blue)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12-orange)
 ![H2 Database](https://img.shields.io/badge/H2-Database-lightgrey)
 
-一个基于 CQRS（命令查询职责分离）和事件溯源（Event Sourcing）架构的用户管理系统，使用 Spring Boot 和 RabbitMQ 实现。
+A user management system based on CQRS (Command Query Responsibility Segregation) and Event Sourcing architecture, implemented with Spring Boot and RabbitMQ.
 
-## 🎯 项目概述
+## 🎯 Project Overview
 
-EventBridge 展示了现代微服务架构中的核心模式：
-- **CQRS** - 分离命令（写）和查询（读）操作
-- **事件驱动架构** - 通过领域事件实现服务间通信
-- **事件溯源** - 通过事件序列重建聚合状态
-- **最终一致性** - 查询端异步更新读模型
+EventBridge demonstrates core patterns in modern microservices architecture:
+- **CQRS** - Separates command (write) and query (read) operations
+- **Event-Driven Architecture** - Implements service communication through domain events
+- **Event Sourcing** - Rebuilds aggregate state through event sequences
+- **Eventual Consistency** - Asynchronously updates read models on query side
 
-## 🏗️ 架构设计
+## 🏗️ Architecture Design
 
-### 核心架构图
+### Core Architecture Diagram
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -29,67 +30,67 @@ EventBridge 展示了现代微服务架构中的核心模式：
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
-### 包结构说明
+### Package Structure
 
 ```
 src/main/java/com/eventbridge/
-├── command/                    # 命令端（写操作）
-│   ├── application/           # 应用服务层
-│   │   ├── commands/         # 命令对象
+├── command/                    # Command Side (Write Operations)
+│   ├── application/           # Application Service Layer
+│   │   ├── commands/         # Command Objects
 │   │   └── UserCommandService.java
-│   ├── domain/               # 领域层
-│   │   ├── events/          # 领域事件
-│   │   ├── model/           # 领域模型
+│   ├── domain/               # Domain Layer
+│   │   ├── events/          # Domain Events
+│   │   ├── model/           # Domain Models
 │   │   └── User.java
-│   ├── infrastructure/       # 基础设施层
-│   │   ├── events/          # 事件发布
-│   │   └── persistence/     # 持久化
-│   └── web/                 # Web 层
+│   ├── infrastructure/       # Infrastructure Layer
+│   │   ├── events/          # Event Publishing
+│   │   └── persistence/     # Persistence
+│   └── web/                 # Web Layer
 │       └── UserCommandController.java
-├── query/                    # 查询端（读操作）
-│   ├── application/          # 应用服务层
-│   │   ├── eventhandlers/   # 事件处理器
+├── query/                    # Query Side (Read Operations)
+│   ├── application/          # Application Service Layer
+│   │   ├── eventhandlers/   # Event Handlers
 │   │   └── UserQueryService.java
-│   ├── infrastructure/      # 基础设施层
-│   │   ├── events/         # 事件监听
-│   │   ├── model/          # 读模型
-│   │   └── persistence/    # 读模型持久化
-│   └── web/                # Web 层
+│   ├── infrastructure/      # Infrastructure Layer
+│   │   ├── events/         # Event Listening
+│   │   ├── model/          # Read Models
+│   │   └── persistence/    # Read Model Persistence
+│   └── web/                # Web Layer
 │       └── UserQueryController.java
-├── common/                  # 通用组件
-│   └── event/              # 事件处理注册表
-└── config/                 # 配置类
+├── common/                  # Common Components
+│   └── event/              # Event Processing Registry
+└── config/                 # Configuration Classes
     ├── RabbitMQConfig.java
     ├── AsyncConfig.java
     └── DomainEventMixin.java
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 前置要求
+### Prerequisites
 
 - Java 17+
 - Maven 3.6+
 - RabbitMQ 3.12+
 
-### 环境配置
+### Environment Setup
 
-1. **启动 RabbitMQ**
+1. **Start RabbitMQ**
 ```bash
-# 使用 Docker
+# Using Docker
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management
 
-# 或者使用本地安装的 RabbitMQ
+# Or using locally installed RabbitMQ
 rabbitmq-server
 ```
 
-2. **克隆项目**
+2. **Clone Project**
 ```bash
 git clone <repository-url>
 cd eventbridge
 ```
 
-3. **配置应用**
+3. **Configure Application**
 ```properties
 # application.properties
 spring.rabbitmq.host=localhost
@@ -98,17 +99,17 @@ spring.rabbitmq.username=guest
 spring.rabbitmq.password=guest
 ```
 
-4. **构建和运行**
+4. **Build and Run**
 ```bash
 mvn clean install
 mvn spring-boot:run
 ```
 
-## 📚 API 文档
+## 📚 API Documentation
 
-### 命令端 API（写操作）
+### Command Side API (Write Operations)
 
-#### 创建用户
+#### Create User
 ```http
 POST /api/command/users
 Content-Type: application/json
@@ -119,7 +120,7 @@ Content-Type: application/json
 }
 ```
 
-**响应：**
+**Response:**
 ```json
 {
   "userId": "abe5be3a-83d6-437e-abed-ce8ccfecf3d4",
@@ -127,7 +128,7 @@ Content-Type: application/json
 }
 ```
 
-#### 更新用户邮箱
+#### Update User Email
 ```http
 PUT /api/command/users/{userId}/email
 Content-Type: application/json
@@ -137,28 +138,28 @@ Content-Type: application/json
 }
 ```
 
-#### 停用用户
+#### Deactivate User
 ```http
 POST /api/command/users/{userId}/deactivate
 ```
 
-### 查询端 API（读操作）
+### Query Side API (Read Operations)
 
-#### 获取所有用户
+#### Get All Users
 ```http
 GET /api/users
 ```
 
-#### 获取特定用户
+#### Get Specific User
 ```http
 GET /api/users/{userId}
 ```
 
-## 🔧 核心特性
+## 🔧 Core Features
 
-### 1. 事件驱动架构
+### 1. Event-Driven Architecture
 
-**领域事件定义：**
+**Domain Event Definition:**
 ```java
 public interface DomainEvent {
     String getEventId();
@@ -168,105 +169,105 @@ public interface DomainEvent {
 }
 ```
 
-**事件发布流程：**
-1. 命令处理产生领域事件
-2. 事件通过 `DomainEventPublisher` 发布
-3. 同时发布到本地事件和 RabbitMQ
-4. 查询端监听并处理事件
+**Event Publishing Flow:**
+1. Command processing generates domain events
+2. Events published via `DomainEventPublisher`
+3. Simultaneously published to local events and RabbitMQ
+4. Query side listens and processes events
 
-### 2. CQRS 实现
+### 2. CQRS Implementation
 
-**命令端**：
-- 处理业务逻辑和状态变更
-- 发布领域事件
-- 使用写模型（`User` 聚合）
+**Command Side**:
+- Handles business logic and state changes
+- Publishes domain events
+- Uses write model (`User` aggregate)
 
-**查询端**：
-- 监听和处理领域事件
-- 维护读模型（`UserView`）
-- 提供查询接口
+**Query Side**:
+- Listens and processes domain events
+- Maintains read model (`UserView`)
+- Provides query interfaces
 
-### 3. 幂等性处理
+### 3. Idempotency Handling
 
-所有事件处理器都实现了幂等性检查：
+All event handlers implement idempotency checks:
 
 ```java
-// 幂等性检查
+// Idempotency check
 if (userViewRepository.existsById(userId)) {
-    System.out.println("⏭️ 用户视图已存在，跳过创建: " + userId);
+    System.out.println("⏭️ User view already exists, skipping creation: " + userId);
     return;
 }
 ```
 
-### 4. RabbitMQ 配置
+### 4. RabbitMQ Configuration
 
-- **交换机**: `domain-events-exchange` (Topic 类型)
-- **队列**:
-    - `user-events-queue` (路由键: `user.*`)
-    - `order-events-queue` (路由键: `order.*`)
-- **消息持久化**: 启用
-- **确认机制**: 自动确认
+- **Exchange**: `domain-events-exchange` (Topic type)
+- **Queues**:
+    - `user-events-queue` (routing key: `user.*`)
+    - `order-events-queue` (routing key: `order.*`)
+- **Message Persistence**: Enabled
+- **Acknowledgment**: Auto-ack
 
-## 🎪 事件流示例
+## 🎪 Event Flow Example
 
-### 用户创建事件流
+### User Creation Event Flow
 
 ```
 1. HTTP POST /api/command/users
    ↓
-2. UserCommandService 处理 CreateUserCommand
+2. UserCommandService processes CreateUserCommand
    ↓
-3. User 聚合创建并发布 UserCreatedEvent
+3. User aggregate created and publishes UserCreatedEvent
    ↓
-4. DomainEventPublisher 发布事件到:
-   - 本地 ApplicationEventPublisher
-   - RabbitMQ (路由键: user.usercreated)
+4. DomainEventPublisher publishes events to:
+   - Local ApplicationEventPublisher
+   - RabbitMQ (routing key: user.usercreated)
    ↓
-5. 查询端处理:
-   - RabbitMQEventsListener 接收消息
-   - EventProcessorRegistry 调用处理器
-   - UserEventRegistrar 创建 UserView
+5. Query side processing:
+   - RabbitMQEventsListener receives message
+   - EventProcessorRegistry invokes handlers
+   - UserEventRegistrar creates UserView
    ↓
-6. 用户视图可用于查询
+6. User view available for querying
 ```
 
-## 🔍 监控和调试
+## 🔍 Monitoring and Debugging
 
-### H2 数据库控制台
+### H2 Database Console
 
-应用启动后访问：http://localhost:8080/h2-console
+Access after application startup: http://localhost:8080/h2-console
 
 - **JDBC URL**: `jdbc:h2:mem:eventbridgedb`
-- **用户名**: `SA`
-- **密码**: (空)
+- **Username**: `SA`
+- **Password**: (empty)
 
-### RabbitMQ 管理界面
+### RabbitMQ Management Console
 
-访问：http://localhost:15672
+Access: http://localhost:15672
 
-- **用户名**: `guest`
-- **密码**: `guest`
+- **Username**: `guest`
+- **Password**: `guest`
 
-### 应用日志
+### Application Logs
 
-应用提供了详细的日志输出，包括：
-- 事件处理状态
-- 数据库操作
-- RabbitMQ 消息流
-- 错误和异常信息
+Application provides detailed log output including:
+- Event processing status
+- Database operations
+- RabbitMQ message flow
+- Error and exception information
 
-## 🛠️ 开发指南
+## 🛠️ Development Guide
 
-### 添加新事件类型
+### Adding New Event Types
 
-1. **在命令端定义事件**：
+1. **Define Event in Command Side**:
 ```java
 public class UserActivatedEvent implements DomainEvent {
-    // 实现接口方法
+    // Implement interface methods
 }
 ```
 
-2. **在 User 聚合中发布事件**：
+2. **Publish Event in User Aggregate**:
 ```java
 public void activate() {
     this.status = UserStatus.ACTIVE;
@@ -274,96 +275,97 @@ public void activate() {
 }
 ```
 
-3. **在查询端注册处理器**：
+3. **Register Handler in Query Side**:
 ```java
-// 在 UserEventRegistrar 中
+// In UserEventRegistrar
 eventProcessorRegistry.registerProcessor("UserActivated", this::handleUserActivated);
 ```
 
-4. **实现事件处理器**：
+4. **Implement Event Handler**:
 ```java
 private void handleUserActivated(DomainEvent event) {
     UserActivatedEvent activatedEvent = (UserActivatedEvent) event;
-    // 处理逻辑
+    // Processing logic
 }
 ```
 
-### 配置说明
+### Configuration Details
 
-#### RabbitMQ 配置
+#### RabbitMQ Configuration
 ```java
 @Configuration
 @EnableRabbit
 public class RabbitMQConfig {
-    // 配置交换机、队列、绑定、消息转换器等
+    // Configure exchange, queues, bindings, message converters, etc.
 }
 ```
 
-#### 异步配置
+#### Async Configuration
 ```java
 @Configuration
 @EnableAsync
 public class AsyncConfig {
-    // 配置异步任务执行器
+    // Configure async task executors
 }
 ```
 
-## 🧪 测试
+## 🧪 Testing
 
-### 运行测试
+### Running Tests
 ```bash
 mvn test
 ```
 
-### 手动测试流程
+### Manual Testing Process
 
-1. **创建用户**：
+1. **Create User**:
 ```bash
 curl -X POST http://localhost:8080/api/command/users \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","email":"test@example.com"}'
 ```
 
-2. **查询用户**：
+2. **Query Users**:
 ```bash
 curl http://localhost:8080/api/users
 ```
 
-3. **更新邮箱**：
+3. **Update Email**:
 ```bash
 curl -X PUT http://localhost:8080/api/command/users/{userId}/email \
   -H "Content-Type: application/json" \
   -d '{"newEmail":"updated@example.com"}'
 ```
 
-## 🐛 故障排除
+## 🐛 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-1. **RabbitMQ 连接失败**
-    - 检查 RabbitMQ 服务是否运行
-    - 验证连接配置
+1. **RabbitMQ Connection Failure**
+    - Check if RabbitMQ service is running
+    - Verify connection configuration
 
-2. **事件重复处理**
-    - 检查幂等性逻辑
-    - 验证事件处理器注册
+2. **Duplicate Event Processing**
+    - Check idempotency logic
+    - Verify event handler registration
 
-3. **数据不一致**
-    - 检查事件处理日志
-    - 验证读模型更新
+3. **Data Inconsistency**
+    - Check event processing logs
+    - Verify read model updates
 
-### 日志分析
+### Log Analysis
 
-应用提供了详细的日志标记：
-- `[COMMAND]` - 命令端操作
-- `[QUERY-RABBITMQ]` - RabbitMQ 事件处理
-- `[QUERY-LOCAL]` - 本地事件处理
-- `[EVENT-REGISTRY]` - 事件注册表处理
+Application provides detailed log markers:
+- `[COMMAND]` - Command side operations
+- `[QUERY-RABBITMQ]` - RabbitMQ event processing
+- `[QUERY-LOCAL]` - Local event processing
+- `[EVENT-REGISTRY]` - Event registry processing
 
-## 🙏 致谢
+## 🙏 Acknowledgments
 
-- Spring Boot 团队
-- RabbitMQ 团队
-- 所有贡献者
+- Spring Boot Team
+- RabbitMQ Team
+- All Contributors
 
 ---
+```
