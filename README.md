@@ -1,4 +1,3 @@
-```markdown
 # EventBridge - CQRS & Event Sourcing User Management System
 
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen)
@@ -6,7 +5,7 @@
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12-orange)
 ![H2 Database](https://img.shields.io/badge/H2-Database-lightgrey)
 
-A user management system based on CQRS (Command Query Responsibility Segregation) and Event Sourcing architecture, implemented with Spring Boot and RabbitMQ.
+A user management system based on CQRS (Command Query Responsibility Segregation) and Event Sourcing architecture, implemented using Spring Boot and RabbitMQ.
 
 ## 🎯 Project Overview
 
@@ -84,13 +83,13 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-manageme
 rabbitmq-server
 ```
 
-2. **Clone Project**
+2. **Clone the Project**
 ```bash
 git clone <repository-url>
 cd eventbridge
 ```
 
-3. **Configure Application**
+3. **Application Configuration**
 ```properties
 # application.properties
 spring.rabbitmq.host=localhost
@@ -172,18 +171,18 @@ public interface DomainEvent {
 **Event Publishing Flow:**
 1. Command processing generates domain events
 2. Events published via `DomainEventPublisher`
-3. Simultaneously published to local events and RabbitMQ
+3. Published to both local events and RabbitMQ
 4. Query side listens and processes events
 
 ### 2. CQRS Implementation
 
-**Command Side**:
+**Command Side:**
 - Handles business logic and state changes
 - Publishes domain events
 - Uses write model (`User` aggregate)
 
-**Query Side**:
-- Listens and processes domain events
+**Query Side:**
+- Listens to and processes domain events
 - Maintains read model (`UserView`)
 - Provides query interfaces
 
@@ -202,11 +201,11 @@ if (userViewRepository.existsById(userId)) {
 ### 4. RabbitMQ Configuration
 
 - **Exchange**: `domain-events-exchange` (Topic type)
-- **Queues**:
-    - `user-events-queue` (routing key: `user.*`)
-    - `order-events-queue` (routing key: `order.*`)
+- **Queues**: 
+  - `user-events-queue` (routing key: `user.*`)
+  - `order-events-queue` (routing key: `order.*`)
 - **Message Persistence**: Enabled
-- **Acknowledgment**: Auto-ack
+- **Acknowledgment**: Auto acknowledgment
 
 ## 🎪 Event Flow Example
 
@@ -219,13 +218,13 @@ if (userViewRepository.existsById(userId)) {
    ↓
 3. User aggregate created and publishes UserCreatedEvent
    ↓
-4. DomainEventPublisher publishes events to:
+4. DomainEventPublisher publishes event to:
    - Local ApplicationEventPublisher
    - RabbitMQ (routing key: user.usercreated)
    ↓
 5. Query side processing:
    - RabbitMQEventsListener receives message
-   - EventProcessorRegistry invokes handlers
+   - EventProcessorRegistry invokes handler
    - UserEventRegistrar creates UserView
    ↓
 6. User view available for querying
@@ -235,22 +234,22 @@ if (userViewRepository.existsById(userId)) {
 
 ### H2 Database Console
 
-Access after application startup: http://localhost:8080/h2-console
+After application starts, visit: http://localhost:8080/h2-console
 
 - **JDBC URL**: `jdbc:h2:mem:eventbridgedb`
 - **Username**: `SA`
 - **Password**: (empty)
 
-### RabbitMQ Management Console
+### RabbitMQ Management Interface
 
-Access: http://localhost:15672
+Visit: http://localhost:15672
 
 - **Username**: `guest`
 - **Password**: `guest`
 
 ### Application Logs
 
-Application provides detailed log output including:
+The application provides detailed log output including:
 - Event processing status
 - Database operations
 - RabbitMQ message flow
@@ -260,14 +259,14 @@ Application provides detailed log output including:
 
 ### Adding New Event Types
 
-1. **Define Event in Command Side**:
+1. **Define Event in Command Side:**
 ```java
 public class UserActivatedEvent implements DomainEvent {
     // Implement interface methods
 }
 ```
 
-2. **Publish Event in User Aggregate**:
+2. **Publish Event in User Aggregate:**
 ```java
 public void activate() {
     this.status = UserStatus.ACTIVE;
@@ -275,13 +274,13 @@ public void activate() {
 }
 ```
 
-3. **Register Handler in Query Side**:
+3. **Register Handler in Query Side:**
 ```java
 // In UserEventRegistrar
 eventProcessorRegistry.registerProcessor("UserActivated", this::handleUserActivated);
 ```
 
-4. **Implement Event Handler**:
+4. **Implement Event Handler:**
 ```java
 private void handleUserActivated(DomainEvent event) {
     UserActivatedEvent activatedEvent = (UserActivatedEvent) event;
@@ -305,7 +304,7 @@ public class RabbitMQConfig {
 @Configuration
 @EnableAsync
 public class AsyncConfig {
-    // Configure async task executors
+    // Configure async task executor
 }
 ```
 
@@ -318,19 +317,19 @@ mvn test
 
 ### Manual Testing Process
 
-1. **Create User**:
+1. **Create User:**
 ```bash
 curl -X POST http://localhost:8080/api/command/users \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","email":"test@example.com"}'
 ```
 
-2. **Query Users**:
+2. **Query Users:**
 ```bash
 curl http://localhost:8080/api/users
 ```
 
-3. **Update Email**:
+3. **Update Email:**
 ```bash
 curl -X PUT http://localhost:8080/api/command/users/{userId}/email \
   -H "Content-Type: application/json" \
@@ -341,17 +340,17 @@ curl -X PUT http://localhost:8080/api/command/users/{userId}/email \
 
 ### Common Issues
 
-1. **RabbitMQ Connection Failure**
-    - Check if RabbitMQ service is running
-    - Verify connection configuration
+1. **RabbitMQ Connection Failed**
+   - Check if RabbitMQ service is running
+   - Verify connection configuration
 
-2. **Duplicate Event Processing**
-    - Check idempotency logic
-    - Verify event handler registration
+2. **Event Duplicate Processing**
+   - Check idempotency logic
+   - Verify event handler registration
 
 3. **Data Inconsistency**
-    - Check event processing logs
-    - Verify read model updates
+   - Check event processing logs
+   - Verify read model updates
 
 ### Log Analysis
 
@@ -361,11 +360,9 @@ Application provides detailed log markers:
 - `[QUERY-LOCAL]` - Local event processing
 - `[EVENT-REGISTRY]` - Event registry processing
 
-## 🙏 Acknowledgments
+## 📈 Performance Considerations
 
-- Spring Boot Team
-- RabbitMQ Team
-- All Contributors
-
----
-```
+- **Async Processing**: Event processing uses async mechanisms, doesn't block command side
+- **Batch Operations**: Supports batch event processing
+- **Connection Pooling**: Uses HikariCP database connection pool
+- **Message Persistence**: RabbitMQ message persistence ensures data durability
